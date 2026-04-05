@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netra-drone-surveillance-environment"
+version = "5.0.0"
+description = "OpenEnv environment for battery-constrained drone surveillance planning"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.34,<1",
+    "pydantic>=2.11,<3",
+    "PyYAML>=6,<7",
+    "openai>=1.0,<2",
+    "openenv-core[core] @ git+https://github.com/meta-pytorch/OpenEnv.git",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["api", "baseline", "env", "server"]

@@ -1,0 +1,14 @@
+.venv/
+.python313/
+.packages/
+.tmp/
+.codextmp/
+.uv-cache/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.git/
+.gitignore
+DockerDesktopInstaller.exe
+openenv-runtime.pid
