@@ -268,6 +268,25 @@ Current deterministic heuristic baseline scores with seed `7`:
 - `hard_fully_dynamic_response_grid`: `0.4031`
 - average score: `0.5108`
 
+## Submission Inference
+
+The required submission entrypoint is [`inference.py`](/d:/meta%20hackthon/inference.py) at the repository root.
+
+It uses the OpenAI Python client and reads these environment variables:
+
+- `API_BASE_URL`
+- `MODEL_NAME`
+- `HF_TOKEN`
+
+Example:
+
+```bash
+export API_BASE_URL=https://api.openai.com/v1
+export MODEL_NAME=gpt-4.1-mini
+export HF_TOKEN=your_api_key
+python inference.py --seed 7
+```
+
 ## Smoke Test
 
 Run the deterministic smoke test:
