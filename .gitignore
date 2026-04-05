@@ -1,0 +1,32 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local secrets
+.env
+
+# Local virtual environments and caches
+.venv/
+.uv-cache/
+.python313/
+.packages/
+.docker-config/
+.codextmp/
+.tmp/
+
+# Local editor settings
+.vscode/
+
+# Runtime files and logs
+*.log
+*.pid
+uvicorn.out.log
+uvicorn.err.log
+openenv-runtime.out.log
+openenv-runtime.err.log
+openenv-runtime.pid
+
+# Local downloads and installers
+DockerDesktopInstaller.exe
