@@ -62,7 +62,7 @@ def _make_client() -> tuple[OpenAI, str, str]:
     api_base_url = _require_env("API_BASE_URL")
     model_name = _require_env("MODEL_NAME")
     hf_token = _require_env("HF_TOKEN")
-    return OpenAI(api_key=hf_token, base_url=api_base_url), model_name, api_base_url
+    return OpenAI(api_key=hf_token, base_url=api_base_url, max_retries=0), model_name, api_base_url
 
 
 def _emit(tag: str, payload: dict[str, object]) -> None:

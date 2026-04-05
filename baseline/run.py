@@ -136,7 +136,7 @@ def _build_openai_client() -> OpenAI:
     base_url = os.getenv("OPENAI_BASE_URL")
     if base_url:
         client_kwargs["base_url"] = base_url
-    return OpenAI(**client_kwargs)
+    return OpenAI(max_retries=0, **client_kwargs)
 
 def _observation_payload(observation: Observation) -> dict[str, object]:
     return {
