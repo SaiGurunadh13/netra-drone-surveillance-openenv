@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -5,20 +7,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import argparse
 import json
 from pathlib import Path
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
-from openai import OpenAI
+if TYPE_CHECKING:
+    from openai import OpenAI
+    from env.models import BaselineResponse
 
-from baseline.run import (
-    DEFAULT_OPENAI_MAX_COMPLETION_TOKENS,
-    DEFAULT_OPENAI_MAX_RETRIES,
-    DEFAULT_OPENAI_RETRY_BASE_DELAY_S,
-    _load_env_from_dotenv,
-    _selected_tasks,
-    choose_action_openai,
-)
-from env.environment import NetraDroneSurveillanceEnvironment
-from env.models import Action, BaselineResponse, BaselineTaskResult
+# Mirror the baseline defaults locally so validators can import this module
+# without importing `baseline.run` and its heavier runtime dependencies.
+DEFAULT_OPENAI_MAX_COMPLETION_TOKENS = 128
+DEFAULT_OPENAI_MAX_RETRIES = 6
+DEFAULT_OPENAI_RETRY_BASE_DELAY_S = 0.75
 
 
 def _parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
@@ -58,8 +57,27 @@ def _require_env(name: str) -> str:
     return value
 
 
-def _make_client() -> tuple[OpenAI, str, str]:
-    _load_env_from_dotenv()
+def _load_baseline_runtime():
+    try:
+        from baseline.run import _load_env_from_dotenv, _selected_tasks, choose_action_openai
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Missing runtime dependency while loading baseline helpers. "
+            "Install the project requirements before executing inference.py."
+        ) from exc
+    return _load_env_from_dotenv, _selected_tasks, choose_action_openai
+
+
+def _make_client() -> tuple["OpenAI", str, str]:
+    try:
+        from openai import OpenAI
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Missing runtime dependency `openai`. Install the project requirements before executing inference.py."
+        ) from exc
+
+    load_env_from_dotenv, _, _ = _load_baseline_runtime()
+    load_env_from_dotenv()
     api_base_url = _require_env("API_BASE_URL")
     model_name = _require_env("MODEL_NAME")
     hf_token = _require_env("HF_TOKEN")
@@ -77,9 +95,13 @@ def run_inference(
     max_completion_tokens: int = DEFAULT_OPENAI_MAX_COMPLETION_TOKENS,
     max_retries: int = DEFAULT_OPENAI_MAX_RETRIES,
     retry_base_delay_s: float = DEFAULT_OPENAI_RETRY_BASE_DELAY_S,
-) -> BaselineResponse:
+) -> "BaselineResponse":
+    from env.environment import NetraDroneSurveillanceEnvironment
+    from env.models import Action, BaselineResponse, BaselineTaskResult
+
+    _, select_tasks, choose_action_openai = _load_baseline_runtime()
     client, model_name, api_base_url = _make_client()
-    tasks = _selected_tasks(task_ids)
+    tasks = select_tasks(task_ids)
     environment = NetraDroneSurveillanceEnvironment(seed=seed)
     results: list[BaselineTaskResult] = []
 
